@@ -19,7 +19,7 @@ if [ "$enabled" -gt "0" ]
 charging_source="unknown!"
 last_source="unknown";
 batt_life=0;
-current_polling_interval=5;
+current_polling_interval=15;
 current_max_clock=0
 bias=0;
 last_bias=0;
