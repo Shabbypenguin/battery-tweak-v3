@@ -157,9 +157,9 @@ log "collin_ph: checking if its here1"
 set_max_clock()
 {
     temp=`expr 100 "-" $capacity`
-		temp=`expr $temp "'*'" $cpu_max_underclock_perc`
+		temp=`expr $temp "*" $cpu_max_underclock_perc`
 		temp=`expr $temp "/" 100`
-		temp=`expr $temp "'*'" $max_freq_on_battery`
+		temp=`expr $temp "*" $max_freq_on_battery`
 		temp=`expr $temp "/" 100`
 		temp=`expr $max_freq_on_battery "-" $temp`
     log "collin_ph: checking if maybe its here?2"
