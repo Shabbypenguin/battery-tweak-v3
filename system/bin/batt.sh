@@ -209,10 +209,11 @@ if [ "$charging_source" = "0" ]
     then
     last_capacity=$capacity
     log "collin_ph: status = Charging Source: charging_source=$charging_source"
-    case $cpu_limiting_method in
-       "1") set_max_clock;;
-       "2") set_powersave_bias;;
-    esac
+    set_max_clock;;
+    #case $cpu_limiting_method in
+      # "1") set_max_clock;;
+      # "2") set_powersave_bias;;
+    #esac
 
   fi
 fi
