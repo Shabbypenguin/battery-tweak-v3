@@ -11,7 +11,14 @@
 
 if [ "$enabled" -gt "0" ] 
  then
-  
+  if [ "$audio_fix" -gt "0" ]
+   then
+	 log "collin_ph: audiofix enabled, disabling stagefright"
+	 setprop media.stagefright.enable-player false
+	 else
+	 log "collin_ph: audiofix disabled, enabling stagefright"
+	 setprop media.stagefright.enable-player true
+fi
  
  
 #Initialization variables
@@ -43,6 +50,36 @@ mount -o $1 /cache -t rfs
 #mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
 }
 
+launchCFStweaks()
+{
+navPID=`pidof "com.google.android.apps.maps:driveabout"`
+if [ "$navPID" ] 
+ then 
+ disableCFStweaks "Disabling CFS Tweaks, GPS Navigation detected.";
+ else
+ if [ "$CFSstate" != "enabled" ] 
+ then
+ mount -t debugfs none /sys/kernel/debug
+ log "collin_ph: Changed sched_features (CFS Tweaks Enabled)"
+ echo "NO_NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
+ umount /sys/kernel/debug
+ CFSstate="enabled"
+ fi
+fi
+
+}
+disableCFStweaks()
+{
+if [ "$CFSstate" != "disabled" ]
+then
+mount -t debugfs none /sys/kernel/debug
+log "collin_ph: Changed sched_features $1"
+echo "NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
+umount /sys/kernel/debug
+CFSstate="disabled"
+fi
+}
+
 increase_battery()
 {
 log "collin_ph: Increasing Battery"
@@ -60,8 +97,8 @@ echo 0 > /proc/sys/vm/dirty_writeback_centisecs
 echo 60 > /proc/sys/vm/dirty_background_ratio
 echo 95 > /proc/sys/vm/dirty_ratio
 echo 10 > /proc/sys/vm/vfs_cache_pressure
-#echo $max_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-#echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+echo $max_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 #echo 95 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
 #echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
@@ -69,11 +106,11 @@ current_max_clock=$max_freq_on_battery
 mount -o remount,ro -t rfs /dev/block/stl9 /
 log "collin_ph: Done Increasing Battery"
 
-if [ "$OverHeatActive" = "0" ]
-  then
-	echo $max_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-	echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-fi
+#if [ "$OverHeatActive" = "0" ]
+#  then
+#	echo $max_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+#	echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+#fi
 
 }
 increase_performanceUSB()
@@ -153,6 +190,7 @@ set_powersave_bias()
     fi
 
 }
+
 log "collin_ph: checking if its here1"
 set_max_clock()
 {
@@ -163,6 +201,7 @@ set_max_clock()
 		temp=`expr $temp "/" 100`
 		temp=`expr $max_freq_on_battery "-" $temp`
     log "collin_ph: checking if maybe its here?2"
+
     if [ "$temp" != "$current_max_clock" ]
        then
        current_max_clock=$temp
@@ -184,9 +223,14 @@ while [ 1 ]
 do
 charging_source=$(cat /sys/class/power_supply/battery/charging_source);
 capacity=$(cat /sys/class/power_supply/battery/capacity);
-CurrentTemp=$(cat /sys/class/power_supply/battery/batt_temp);
+#CurrentTemp=$(cat /sys/class/power_supply/battery/batt_temp);
 
 sleep $current_polling_interval
+
+case $CFStweaks in
+   "1") launchCFStweaks;;
+     *) disableCFStweaks "CFS Tweaks Disabled";;
+esac
 
 if [ "$charging_source" != "$last_source" ]
   then
