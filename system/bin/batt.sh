@@ -27,7 +27,7 @@ charging_source="unknown!"
 last_source="unknown";
 batt_life=0;
 current_polling_interval=15;
-current_max_clock=0
+current_max_clock=0;
 bias=0;
 last_bias=0;
 last_capacity=0;
@@ -50,35 +50,35 @@ mount -o $1 /cache -t rfs
 #mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
 }
 
-launchCFStweaks()
-{
-navPID=`pidof "com.google.android.apps.maps:driveabout"`
-if [ "$navPID" ] 
- then 
- disableCFStweaks "Disabling CFS Tweaks, GPS Navigation detected.";
- else
- if [ "$CFSstate" != "enabled" ] 
- then
- mount -t debugfs none /sys/kernel/debug
- log "collin_ph: Changed sched_features (CFS Tweaks Enabled)"
- echo "NO_NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
- umount /sys/kernel/debug
- CFSstate="enabled"
- fi
-fi
+#launchCFStweaks()
+#{
+#navPID=`pidof "com.google.android.apps.maps:driveabout"`
+#if [ "$navPID" ] 
+# then 
+# disableCFStweaks "Disabling CFS Tweaks, GPS Navigation detected.";
+# else
+# if [ "$CFSstate" != "enabled" ] 
+# then
+# mount -t debugfs none /sys/kernel/debug
+# log "collin_ph: Changed sched_features (CFS Tweaks Enabled)"
+# echo "NO_NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
+# umount /sys/kernel/debug
+# CFSstate="enabled"
+# fi
+#fi
 
-}
-disableCFStweaks()
-{
-if [ "$CFSstate" != "disabled" ]
-then
-mount -t debugfs none /sys/kernel/debug
-log "collin_ph: Changed sched_features $1"
-echo "NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
-umount /sys/kernel/debug
-CFSstate="disabled"
-fi
-}
+#}
+#disableCFStweaks()
+#{
+#if [ "$CFSstate" != "disabled" ]
+#then
+#mount -t debugfs none /sys/kernel/debug
+#log "collin_ph: Changed sched_features $1"
+#echo "NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
+#umount /sys/kernel/debug
+#CFSstate="disabled"
+#fi
+#}
 
 increase_battery()
 {
