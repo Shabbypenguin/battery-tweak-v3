@@ -9,7 +9,7 @@
 . /system/etc/batt.conf
 . /system/etc/batt-temp.conf
 
-if [ "$enabled" -gt "0" ] 
+if [ "$enabled" = "1" ] 
  then
   if [ "$audio_fix" -gt "0" ]
    then
