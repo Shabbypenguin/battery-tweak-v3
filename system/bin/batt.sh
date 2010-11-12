@@ -254,6 +254,7 @@ if [ "$charging_source" = "0" ]
     last_capacity=$capacity
     log "collin_ph: status = Charging Source: charging_source=$charging_source"
     set_max_clock;;
+    #had to try this, with the case below it wasnt setting the cpu clock at all, now it will do it.. once..
     #case $cpu_limiting_method in
       # "1") set_max_clock;;
       # "2") set_powersave_bias;;
