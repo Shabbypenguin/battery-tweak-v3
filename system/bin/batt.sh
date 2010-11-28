@@ -7,11 +7,9 @@
 #moved to /system/etc/batt.conf
 
 . /system/etc/batt.conf
-. /system/etc/batt-temp.conf
-
-if [ "$enabled" = "1" ] 
+if [ "$enabled" -gt "0" ] 
  then
-  if [ "$audio_fix" -gt "0" ]
+if [ "$audio_fix" -gt "0" ]
    then
 	 log "collin_ph: audiofix enabled, disabling stagefright"
 	 setprop media.stagefright.enable-player false
@@ -19,15 +17,17 @@ if [ "$enabled" = "1" ]
 	 log "collin_ph: audiofix disabled, enabling stagefright"
 	 setprop media.stagefright.enable-player true
 fi
+	  
  
  
 #Initialization variables
 #Dont mess with these.
+CFSstate="unknown!"
 charging_source="unknown!"
 last_source="unknown";
 batt_life=0;
-current_polling_interval=15;
-current_max_clock=0;
+current_polling_interval=5;
+current_max_clock=0
 bias=0;
 last_bias=0;
 last_capacity=0;
@@ -41,55 +41,55 @@ mount -o $1 / -t rootfs
 mount -o $1 /dev -t devpts
 mount -o $1 /proc -t proc
 mount -o $1 /sys -t sysfs
-#mount -o $1 /mnt/asec -t tmpfs
-mount -o $1 /system -t rfs
-mount -o $1 /data -t rfs
-mount -o $1 /cache -t rfs
-#mount -o $1 /mnt/sdcard -t vfat
-#mount -o $1 /mnt/secure/asec -t vfat
-#mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
+mount -o $1 /mnt/asec -t tmpfs
+mount -o $1 /system -t yaffs2
+mount -o $1 /data -t yaffs2
+mount -o $1 /cache -t yaffs2
+mount -o $1 /mnt/sdcard -t vfat
+mount -o $1 /mnt/secure/asec -t vfat
+mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
 }
 
-#launchCFStweaks()
-#{
-#navPID=`pidof "com.google.android.apps.maps:driveabout"`
-#if [ "$navPID" ] 
-# then 
-# disableCFStweaks "Disabling CFS Tweaks, GPS Navigation detected.";
-# else
-# if [ "$CFSstate" != "enabled" ] 
-# then
-# mount -t debugfs none /sys/kernel/debug
-# log "collin_ph: Changed sched_features (CFS Tweaks Enabled)"
-# echo "NO_NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
-# umount /sys/kernel/debug
-# CFSstate="enabled"
-# fi
-#fi
+launchCFStweaks()
+{
+navPID=`pidof "com.google.android.apps.maps:driveabout"`
+if [ "$navPID" ] 
+ then 
+ disableCFStweaks "Disabling CFS Tweaks, GPS Navigation detected.";
+ else
+ if [ "$CFSstate" != "enabled" ] 
+ then
+ mount -t debugfs none /sys/kernel/debug
+ log "collin_ph: Changed sched_features (CFS Tweaks Enabled)"
+ echo "NO_NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
+ umount /sys/kernel/debug
+ CFSstate="enabled"
+ fi
+fi
 
-#}
-#disableCFStweaks()
-#{
-#if [ "$CFSstate" != "disabled" ]
-#then
-#mount -t debugfs none /sys/kernel/debug
-#log "collin_ph: Changed sched_features $1"
-#echo "NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
-#umount /sys/kernel/debug
-#CFSstate="disabled"
-#fi
-#}
+}
+disableCFStweaks()
+{
+if [ "$CFSstate" != "disabled" ]
+then
+mount -t debugfs none /sys/kernel/debug
+log "collin_ph: Changed sched_features $1"
+echo "NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
+umount /sys/kernel/debug
+CFSstate="disabled"
+fi
+}
 
 increase_battery()
 {
 log "collin_ph: Increasing Battery"
 #New Performance Tweaks
-mount -o remount,rw -t rfs /dev/block/stl9 /
-#if [ $LEDfix ] 
-#   then
-#   echo 0 > /sys/class/leds/amber/brightness
-#   echo 0 > /sys/class/leds/green/brightness
-#fi
+mount -o remount,rw -t yaffs2 /dev/block/mtdblock3
+if [ $LEDfix ] 
+   then
+   echo 0 > /sys/class/leds/amber/brightness
+   echo 0 > /sys/class/leds/green/brightness
+fi
 current_polling_interval=$polling_interval_on_battery;
 echo 0 > /proc/sys/vm/swappiness
 echo 0 > /proc/sys/vm/dirty_expire_centisecs
@@ -99,20 +99,14 @@ echo 95 > /proc/sys/vm/dirty_ratio
 echo 10 > /proc/sys/vm/vfs_cache_pressure
 echo $max_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-#echo 95 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
-#echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
+echo 95 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
+echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_freq_on_battery
-mount -o remount,ro -t rfs /dev/block/stl9 /
+mount -o remount,ro -t yaffs2 /dev/block/mtdblock3
 log "collin_ph: Done Increasing Battery"
-
-#if [ "$OverHeatActive" = "0" ]
-#  then
-#	echo $max_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-#	echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-#fi
-
 }
+
 increase_performanceUSB()
 {
 log "collin_ph: Increasing Performance For USB Charging"
@@ -125,17 +119,10 @@ echo 250 > /proc/sys/vm/dirty_writeback_centisecs
 echo 10 > /proc/sys/vm/dirty_background_ratio
 echo 40 > /proc/sys/vm/dirty_ratio
 echo 10 > /proc/sys/vm/vfs_cache_pressure
-#echo $max_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-#echo $min_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-#echo 45 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
-#echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
-
-if [ "$OverHeatActive" = "0" ]
-  then
-	echo $max_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-	echo $min_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-fi
-
+echo $max_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+echo $min_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+echo 45 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
+echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_clock_on_USBpower
 #mount -o remount,ro /
@@ -153,25 +140,15 @@ echo 500 > /proc/sys/vm/dirty_writeback_centisecs
 echo 10 > /proc/sys/vm/dirty_background_ratio
 echo 40 > /proc/sys/vm/dirty_ratio
 echo 10 > /proc/sys/vm/vfs_cache_pressure
-#echo $max_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-#echo $min_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-#echo 50 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
-#echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
-
-if [ "$OverHeatActive" = "0" ]
-  then
-	echo $max_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-	echo $min_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-fi
-
+echo $max_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+echo $min_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+echo 50 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
+echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_clock_on_power
 #mount -o remount,ro /
 log "collin_ph: Done Increasing Performance"
 }
-
-
-
 set_powersave_bias()
 {
     capacity=`expr $capacity '*' 10`
@@ -191,7 +168,6 @@ set_powersave_bias()
 
 }
 
-log "collin_ph: checking if its here1"
 set_max_clock()
 {
     temp=`expr 100 "-" $capacity`
@@ -200,8 +176,7 @@ set_max_clock()
 		temp=`expr $temp "*" $max_freq_on_battery`
 		temp=`expr $temp "/" 100`
 		temp=`expr $max_freq_on_battery "-" $temp`
-    log "collin_ph: checking if maybe its here?2"
-
+    
     if [ "$temp" != "$current_max_clock" ]
        then
        current_max_clock=$temp
@@ -210,9 +185,8 @@ set_max_clock()
        log "collin_ph: Done Setting Max Clock";
     fi
 
-log "collin said this might work here"
+
 }
-log "collin said this might work here23"
 case $MOUNToptions in
    "1") launchMOUNToptions remount,noatime,nodiratime;;
      *) launchMOUNToptions remount,atime,diratime;;
@@ -223,9 +197,10 @@ while [ 1 ]
 do
 charging_source=$(cat /sys/class/power_supply/battery/charging_source);
 capacity=$(cat /sys/class/power_supply/battery/capacity);
-#CurrentTemp=$(cat /sys/class/power_supply/battery/batt_temp);
+
 
 sleep $current_polling_interval
+	    
 
 case $CFStweaks in
    "1") launchCFStweaks;;
@@ -253,33 +228,11 @@ if [ "$charging_source" = "0" ]
     then
     last_capacity=$capacity
     log "collin_ph: status = Charging Source: charging_source=$charging_source"
-    set_max_clock;;
-    #had to try this, with the case below it wasnt setting the cpu clock at all, now it will do it.. once..
-    #case $cpu_limiting_method in
-      # "1") set_max_clock;;
-      # "2") set_powersave_bias;;
-    #esac
+    case $cpu_limiting_method in
+       "1") set_max_clock;;
+       "2") set_powersave_bias;;
+    esac
 
-  fi
-fi
-
-if [ "$MaxTempEnable" = "y" ]
-  then
-  if [ "$CurrentTemp" -gt "$MaxTemp" ]
-	then
-	mount -o remount,rw -t rfs /dev/block/stl9 /system
-	echo "OverHeatActive=1" > /system/etc/batt-temp.conf
-	mount -o remount,ro -t rfs /dev/block/stl9 /system
-	echo $MaxFreqOverride > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-	echo $MinFreqOverride > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-	log "collin_ph: Phone is Overheating, Max Frequencies override"
-  else
-	if [ "$OverHeatActive" != "0" ]
-	      then
-		mount -o remount,rw -t rfs /dev/block/stl9 /system
-		echo "OverHeatActive=0" > /system/etc/batt-temp.conf
-		mount -o remount,ro -t rfs /dev/block/stl9 /system
-	fi
   fi
 fi
 
