@@ -182,6 +182,7 @@ set_max_clock()
 		temp=`expr $temp "*" $max_freq_on_battery`
 		temp=`expr $temp "/" 100`
 		temp=`expr $max_freq_on_battery "-" $temp`
+    log "collin_ph: testing to make sure expr works out";
     echo="before6"
     if [ "$temp" != "$current_max_clock" ]
        then
@@ -202,6 +203,7 @@ esac
 echo="before7"
 while [ 1 ] 
 do
+log "collin_ph: is it doing 1?";
 echo="after7"
 charging_source=$(cat /sys/class/power_supply/battery/charging_source);
 capacity=$(cat /sys/class/power_supply/battery/capacity);
@@ -215,9 +217,11 @@ case $CFStweaks in
      *) disableCFStweaks "CFS Tweaks Disabled";;
 esac
 echo="before8"
+log "collin_ph: is it charging?";
 if [ "$charging_source" != "$last_source" ]
   then
      echo="after8"
+     log "collin_ph: charging source having issues?";
      last_source=$charging_source;
      log "collin_ph status= Charging Source: 1=USB 2=AC 0=Battery"
      log "collin_ph status= Charging Source: charging_source=$charging_source"
@@ -231,8 +235,10 @@ if [ "$charging_source" != "$last_source" ]
 fi
 
 echo="before9"
+log "collin_ph: ok lets try this3";
 if [ "$charging_source" = "0" ]
   then
+  log "collin_ph: ok lets try this3";
   echo="before10"
   if [ "$capacity" != "$last_capacity" ]
     then
