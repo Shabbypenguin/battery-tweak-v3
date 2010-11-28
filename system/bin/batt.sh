@@ -7,8 +7,10 @@
 #moved to /system/etc/batt.conf
 
 . /system/etc/batt.conf
+echo="before1
 if [ "$enabled" -gt "0" ] 
  then
+echo="before2"
 if [ "$audio_fix" -gt "0" ]
    then
 	 log "collin_ph: audiofix enabled, disabling stagefright"
@@ -17,7 +19,7 @@ if [ "$audio_fix" -gt "0" ]
 	 log "collin_ph: audiofix disabled, enabling stagefright"
 	 setprop media.stagefright.enable-player true
 fi
-	  
+echo="after2"	  
  
  
 #Initialization variables
@@ -84,8 +86,10 @@ increase_battery()
 {
 log "collin_ph: Increasing Battery"
 #New Performance Tweaks
-mount -o remount,rw -t yaffs2 /dev/block/mtdblock3
+mount -t rfs -o remount,rw /dev/block/stl9 /
+echo="before3"
 if [ $LEDfix ] 
+echo="after3"
    then
    echo 0 > /sys/class/leds/amber/brightness
    echo 0 > /sys/class/leds/green/brightness
@@ -103,7 +107,7 @@ echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_fre
 #echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_freq_on_battery
-mount -o remount,ro -t yaffs2 /dev/block/mtdblock3
+mount -t rfs -o remount,ro /dev/block/stl9 /
 log "collin_ph: Done Increasing Battery"
 }
 
@@ -155,8 +159,10 @@ set_powersave_bias()
     bias=`expr 1000 "-" $capacity`
     bias=`expr $bias "/" $battery_divisor`
     bias=`echo $bias | awk '{printf("%d\n",$0+=$0<0?-0.5:0.5)}'`
+    echo="before5"
     if [ "$bias" != "$last_bias" ]
        then
+       echo="after5"
        log "collin_ph: Setting powersave bias to $bias"
        #mount -o remount,rw /
        echo $bias > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
@@ -176,9 +182,10 @@ set_max_clock()
 		temp=`expr $temp "*" $max_freq_on_battery`
 		temp=`expr $temp "/" 100`
 		temp=`expr $max_freq_on_battery "-" $temp`
-    
+    echo="before6"
     if [ "$temp" != "$current_max_clock" ]
        then
+       echo="after6"
        current_max_clock=$temp
        log "collin_ph: Setting Max Clock to $temp";
        echo $temp > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
@@ -192,9 +199,10 @@ case $MOUNToptions in
      *) launchMOUNToptions remount,atime,diratime;;
 esac
 
-
+echo="before7"
 while [ 1 ] 
 do
+echo="after7"
 charging_source=$(cat /sys/class/power_supply/battery/charging_source);
 capacity=$(cat /sys/class/power_supply/battery/capacity);
 
@@ -206,9 +214,10 @@ case $CFStweaks in
    "1") launchCFStweaks;;
      *) disableCFStweaks "CFS Tweaks Disabled";;
 esac
-
+echo="before8"
 if [ "$charging_source" != "$last_source" ]
   then
+     echo="after8"
      last_source=$charging_source;
      log "collin_ph status= Charging Source: 1=USB 2=AC 0=Battery"
      log "collin_ph status= Charging Source: charging_source=$charging_source"
@@ -221,11 +230,13 @@ if [ "$charging_source" != "$last_source" ]
 
 fi
 
-
+echo="before9"
 if [ "$charging_source" = "0" ]
   then
+  echo="before10"
   if [ "$capacity" != "$last_capacity" ]
     then
+    echo="after10"
     last_capacity=$capacity
     log "collin_ph: status = Charging Source: charging_source=$charging_source"
     case $cpu_limiting_method in
@@ -234,9 +245,10 @@ if [ "$charging_source" = "0" ]
     esac
 
   fi
+echo="after9"
 fi
 
 done
 
-
+echo="after1"
 fi #end here if enabled
