@@ -7,10 +7,8 @@
 #moved to /system/etc/batt.conf
 
 . /system/etc/batt.conf
-echo="before1"
 if [ "$enabled" -gt "0" ] 
  then
-echo="before2"
 if [ "$audio_fix" -gt "0" ]
    then
 	 log "collin_ph: audiofix enabled, disabling stagefright"
@@ -19,7 +17,6 @@ if [ "$audio_fix" -gt "0" ]
 	 log "collin_ph: audiofix disabled, enabling stagefright"
 	 setprop media.stagefright.enable-player true
 fi
-echo="after2"	  
  
  
 #Initialization variables
@@ -87,9 +84,7 @@ increase_battery()
 log "collin_ph: Increasing Battery"
 #New Performance Tweaks
 mount -t rfs -o remount,rw /dev/block/stl9 /
-echo="before3"
 if [ $LEDfix ] 
-echo="after3"
    then
    echo 0 > /sys/class/leds/amber/brightness
    echo 0 > /sys/class/leds/green/brightness
@@ -159,10 +154,8 @@ set_powersave_bias()
     bias=`expr 1000 "-" $capacity`
     bias=`expr $bias "/" $battery_divisor`
     bias=`echo $bias | awk '{printf("%d\n",$0+=$0<0?-0.5:0.5)}'`
-    echo="before5"
     if [ "$bias" != "$last_bias" ]
        then
-       echo="after5"
        log "collin_ph: Setting powersave bias to $bias"
        #mount -o remount,rw /
        echo $bias > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
@@ -176,6 +169,7 @@ set_powersave_bias()
 
 set_max_clock()
 {
+    log "collin_ph: testing to make sure expr works out before";
     temp=`expr 100 "-" $capacity`
 		temp=`expr $temp "*" $cpu_max_underclock_perc`
 		temp=`expr $temp "/" 100`
@@ -183,10 +177,8 @@ set_max_clock()
 		temp=`expr $temp "/" 100`
 		temp=`expr $max_freq_on_battery "-" $temp`
     log "collin_ph: testing to make sure expr works out";
-    echo="before6"
     if [ "$temp" != "$current_max_clock" ]
        then
-       echo="after6"
        current_max_clock=$temp
        log "collin_ph: Setting Max Clock to $temp";
        echo $temp > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
@@ -200,11 +192,9 @@ case $MOUNToptions in
      *) launchMOUNToptions remount,atime,diratime;;
 esac
 
-echo="before7"
 while [ 1 ] 
 do
 log "collin_ph: is it doing 1?";
-echo="after7"
 charging_source=$(cat /sys/class/power_supply/battery/charging_source);
 capacity=$(cat /sys/class/power_supply/battery/capacity);
 
@@ -216,11 +206,9 @@ case $CFStweaks in
    "1") launchCFStweaks;;
      *) disableCFStweaks "CFS Tweaks Disabled";;
 esac
-echo="before8"
 log "collin_ph: is it charging?";
 if [ "$charging_source" != "$last_source" ]
   then
-     echo="after8"
      log "collin_ph: charging source having issues?";
      last_source=$charging_source;
      log "collin_ph status= Charging Source: 1=USB 2=AC 0=Battery"
@@ -234,27 +222,24 @@ if [ "$charging_source" != "$last_source" ]
 
 fi
 
-echo="before9"
 log "collin_ph: ok lets try this3";
 if [ "$charging_source" = "0" ]
   then
-  log "collin_ph: ok lets try this3";
-  echo="before10"
+  log "collin_ph: ok lets try this43";
   if [ "$capacity" != "$last_capacity" ]
     then
-    echo="after10"
     last_capacity=$capacity
     log "collin_ph: status = Charging Source: charging_source=$charging_source"
     case $cpu_limiting_method in
        "1") set_max_clock;;
        "2") set_powersave_bias;;
+    log "collin_ph: ok lets try this54";
     esac
 
   fi
-echo="after9"
 fi
 
 done
 
-echo="after1"
+
 fi #end here if enabled
