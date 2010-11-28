@@ -7,7 +7,7 @@
 #moved to /system/etc/batt.conf
 
 . /system/etc/batt.conf
-echo="before1
+echo="before1"
 if [ "$enabled" -gt "0" ] 
  then
 echo="before2"
