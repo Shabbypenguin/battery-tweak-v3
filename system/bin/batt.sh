@@ -32,22 +32,22 @@ last_bias=0;
 last_capacity=0;
 #End of init variables
 
-launchMOUNToptions()
-{
-log "collin_ph: remounting file systems $1"
+#launchMOUNToptions()
+#{
+#log "collin_ph: remounting file systems $1"
 
-mount -o $1 / -t rootfs
-mount -o $1 /dev -t devpts
-mount -o $1 /proc -t proc
-mount -o $1 /sys -t sysfs
-mount -o $1 /mnt/asec -t tmpfs
-mount -o $1 /system -t yaffs2
-mount -o $1 /data -t yaffs2
-mount -o $1 /cache -t yaffs2
-mount -o $1 /mnt/sdcard -t vfat
-mount -o $1 /mnt/secure/asec -t vfat
-mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
-}
+#mount -o $1 / -t rootfs
+#mount -o $1 /dev -t devpts
+#mount -o $1 /proc -t proc
+#mount -o $1 /sys -t sysfs
+#mount -o $1 /mnt/asec -t tmpfs
+#mount -o $1 /system -t yaffs2
+#mount -o $1 /data -t yaffs2
+#mount -o $1 /cache -t yaffs2
+#mount -o $1 /mnt/sdcard -t vfat
+#mount -o $1 /mnt/secure/asec -t vfat
+#mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
+#}
 
 launchCFStweaks()
 {
@@ -169,14 +169,14 @@ set_powersave_bias()
 
 set_max_clock()
 {
-    log "collin_ph: testing to make sure expr works out before";
+    
     temp=`expr 100 "-" $capacity`
 		temp=`expr $temp "*" $cpu_max_underclock_perc`
 		temp=`expr $temp "/" 100`
 		temp=`expr $temp "*" $max_freq_on_battery`
 		temp=`expr $temp "/" 100`
 		temp=`expr $max_freq_on_battery "-" $temp`
-    log "collin_ph: testing to make sure expr works out";
+    
     if [ "$temp" != "$current_max_clock" ]
        then
        current_max_clock=$temp
