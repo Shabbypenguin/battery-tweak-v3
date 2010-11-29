@@ -564,3 +564,39 @@ echoit ""
 				   exit;; 
      esac
 done
+
+
+DRM_services()
+{
+echoit ""
+echoit ""
+echoit ""
+
+echoit "Three services are running on your epic by default that cause battery loss, you can choose to remove them or leave them alone. hit enter to leave it unchanged [remove/restore] [$DRM_Services]."
+read new_DRM_Services
+echoit ""
+case $new_DRM_Services in
+           "remove") DRMremove;;
+           "restore") DRMrestore;;
+             *) echo "settings unchanged";;
+esac
+
+}
+
+DRMremove()
+{
+mount -o remount,rw -t rfs /dev/block/stl9 /system
+mv /system/app/DrmProvider.apk /system/app/DrmProvider.apk.bak
+mv /system/app/DrmUA.apk /system/app/DrmUA.apk.bak
+mv /system/app/MediaHub.apk /system/app/MediaHub.apk.bak
+mount -o remount,ro -t rfs /dev/block/stl9 /system
+}
+
+DRMrestore()
+{
+mount -o remount,rw -t rfs /dev/block/stl9 /system
+mv /system/app/DrmProvider.apk.bak /system/app/DrmProvider.apk
+mv /system/app/DrmUA.apk.bak /system/app/DrmUA.apk
+mv /system/app/MediaHub.apk.bak /system/app/MediaHub.apk
+mount -o remount,ro -t rfs /dev/block/stl9 /system
+}
