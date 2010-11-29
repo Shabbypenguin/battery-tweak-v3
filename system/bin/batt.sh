@@ -99,8 +99,8 @@ echo 95 > /proc/sys/vm/dirty_ratio
 echo 10 > /proc/sys/vm/vfs_cache_pressure
 echo $max_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-echo 95 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
+#echo 95 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
+#echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_freq_on_battery
 mount -o remount,ro -t yaffs2 /dev/block/mtdblock3
@@ -121,8 +121,8 @@ echo 40 > /proc/sys/vm/dirty_ratio
 echo 10 > /proc/sys/vm/vfs_cache_pressure
 echo $max_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo $min_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-echo 45 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
+#echo 45 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
+#echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_clock_on_USBpower
 #mount -o remount,ro /
@@ -142,8 +142,8 @@ echo 40 > /proc/sys/vm/dirty_ratio
 echo 10 > /proc/sys/vm/vfs_cache_pressure
 echo $max_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo $min_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-echo 50 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
+#echo 50 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
+#echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_clock_on_power
 #mount -o remount,ro /
@@ -195,12 +195,13 @@ esac
 
 while [ 1 ] 
 do
+log "collin_ph: doing 1?";
 charging_source=$(cat /sys/class/power_supply/battery/charging_source);
 capacity=$(cat /sys/class/power_supply/battery/capacity);
 
-
+log "collin_ph: polling test";
 sleep $current_polling_interval
-	    
+log "collin_ph: Polling pass";	    
 
 case $CFStweaks in
    "1") launchCFStweaks;;
@@ -210,11 +211,11 @@ esac
 if [ "$charging_source" != "$last_source" ]
   then
      last_source=$charging_source;
-     log "collin_ph status= Charging Source: 1=USB 2=AC 0=Battery"
+     log "collin_ph status= Charging Source: 0=USB 2=AC 1=Battery"
      log "collin_ph status= Charging Source: charging_source=$charging_source"
        case $charging_source in
-          "0") increase_battery;;
-          "1") increase_performanceUSB;;
+          "1") increase_battery;;
+          "0") increase_performanceUSB;;
           "2") increase_performance;;
        esac
 
