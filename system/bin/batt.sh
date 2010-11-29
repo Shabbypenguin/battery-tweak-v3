@@ -17,6 +17,7 @@ if [ "$audio_fix" -gt "0" ]
 	 log "collin_ph: audiofix disabled, enabling stagefright"
 	 setprop media.stagefright.enable-player true
 fi
+	  
  
  
 #Initialization variables
@@ -32,22 +33,22 @@ last_bias=0;
 last_capacity=0;
 #End of init variables
 
-#launchMOUNToptions()
-#{
-#log "collin_ph: remounting file systems $1"
+launchMOUNToptions()
+{
+log "collin_ph: remounting file systems $1"
 
-#mount -o $1 / -t rootfs
-#mount -o $1 /dev -t devpts
-#mount -o $1 /proc -t proc
-#mount -o $1 /sys -t sysfs
-#mount -o $1 /mnt/asec -t tmpfs
-#mount -o $1 /system -t yaffs2
-#mount -o $1 /data -t yaffs2
-#mount -o $1 /cache -t yaffs2
-#mount -o $1 /mnt/sdcard -t vfat
-#mount -o $1 /mnt/secure/asec -t vfat
-#mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
-#}
+mount -o $1 / -t rootfs
+mount -o $1 /dev -t devpts
+mount -o $1 /proc -t proc
+mount -o $1 /sys -t sysfs
+mount -o $1 /mnt/asec -t tmpfs
+mount -o $1 /system -t yaffs2
+mount -o $1 /data -t yaffs2
+mount -o $1 /cache -t yaffs2
+mount -o $1 /mnt/sdcard -t vfat
+mount -o $1 /mnt/secure/asec -t vfat
+mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
+}
 
 launchCFStweaks()
 {
@@ -83,7 +84,7 @@ increase_battery()
 {
 log "collin_ph: Increasing Battery"
 #New Performance Tweaks
-mount -t rfs -o remount,rw /dev/block/stl9 /
+mount -o remount,rw -t yaffs2 /dev/block/mtdblock3
 if [ $LEDfix ] 
    then
    echo 0 > /sys/class/leds/amber/brightness
@@ -98,11 +99,11 @@ echo 95 > /proc/sys/vm/dirty_ratio
 echo 10 > /proc/sys/vm/vfs_cache_pressure
 echo $max_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-#echo 95 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
-#echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
+echo 95 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
+echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_freq_on_battery
-mount -t rfs -o remount,ro /dev/block/stl9 /
+mount -o remount,ro -t yaffs2 /dev/block/mtdblock3
 log "collin_ph: Done Increasing Battery"
 }
 
@@ -120,8 +121,8 @@ echo 40 > /proc/sys/vm/dirty_ratio
 echo 10 > /proc/sys/vm/vfs_cache_pressure
 echo $max_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo $min_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-#echo 45 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
-#echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
+echo 45 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
+echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_clock_on_USBpower
 #mount -o remount,ro /
@@ -141,8 +142,8 @@ echo 40 > /proc/sys/vm/dirty_ratio
 echo 10 > /proc/sys/vm/vfs_cache_pressure
 echo $max_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 echo $min_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-#echo 50 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
-#echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
+echo 50 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold
+echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_clock_on_power
 #mount -o remount,ro /
@@ -169,7 +170,6 @@ set_powersave_bias()
 
 set_max_clock()
 {
-    
     temp=`expr 100 "-" $capacity`
 		temp=`expr $temp "*" $cpu_max_underclock_perc`
 		temp=`expr $temp "/" 100`
@@ -192,24 +192,23 @@ case $MOUNToptions in
      *) launchMOUNToptions remount,atime,diratime;;
 esac
 
+
 while [ 1 ] 
 do
-log "collin_ph: is it doing 1?";
 charging_source=$(cat /sys/class/power_supply/battery/charging_source);
 capacity=$(cat /sys/class/power_supply/battery/capacity);
 
-log "collin_ph status= waiting interval test"	
+
 sleep $current_polling_interval
-log "collin_ph status= waiting interval pass"	    
+	    
 
 case $CFStweaks in
    "1") launchCFStweaks;;
      *) disableCFStweaks "CFS Tweaks Disabled";;
 esac
-log "collin_ph: is it charging?";
+
 if [ "$charging_source" != "$last_source" ]
   then
-     log "collin_ph: charging source having issues?";
      last_source=$charging_source;
      log "collin_ph status= Charging Source: 1=USB 2=AC 0=Battery"
      log "collin_ph status= Charging Source: charging_source=$charging_source"
@@ -222,10 +221,9 @@ if [ "$charging_source" != "$last_source" ]
 
 fi
 
-log "collin_ph: ok lets try this3";
+
 if [ "$charging_source" = "0" ]
   then
-  log "collin_ph: ok lets try this43";
   if [ "$capacity" != "$last_capacity" ]
     then
     last_capacity=$capacity
@@ -233,7 +231,6 @@ if [ "$charging_source" = "0" ]
     case $cpu_limiting_method in
        "1") set_max_clock;;
        "2") set_powersave_bias;;
-    log "collin_ph: ok lets try this54";
     esac
 
   fi
