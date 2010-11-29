@@ -84,7 +84,7 @@ increase_battery()
 {
 log "collin_ph: Increasing Battery"
 #New Performance Tweaks
-mount -o remount,rw -t yaffs2 /dev/block/mtdblock3
+mount -t rfs -o remount,rw /dev/block/stl9 /
 if [ $LEDfix ] 
    then
    echo 0 > /sys/class/leds/amber/brightness
@@ -103,7 +103,7 @@ echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_fre
 #echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_freq_on_battery
-mount -o remount,ro -t yaffs2 /dev/block/mtdblock3
+mount -t rfs -o remount,ro /dev/block/stl9 /
 log "collin_ph: Done Increasing Battery"
 }
 
@@ -111,7 +111,7 @@ increase_performanceUSB()
 {
 log "collin_ph: Increasing Performance For USB Charging"
 
-#mount -o remount,rw /
+mount -t rfs -o remount,rw /dev/block/stl9 /
 current_polling_interval=$polling_interval_on_USBpower;
 echo 30 > /proc/sys/vm/swappiness
 echo 1500 > /proc/sys/vm/dirty_expire_centisecs
@@ -125,14 +125,14 @@ echo $min_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_fr
 #echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_clock_on_USBpower
-#mount -o remount,ro /
+mount -t rfs -o remount,ro /dev/block/stl9 /
 log "collin_ph: Done Increasing Performance on USB Charging"
 }
 
 increase_performance()
 {
 log "collin_ph: Increasing Performance"
-#mount -o remount,rw /
+mount -t rfs -o remount,ro /dev/block/stl9 /
 current_polling_interval=$polling_interval_on_power;
 echo 30 > /proc/sys/vm/swappiness
 echo 3000 > /proc/sys/vm/dirty_expire_centisecs
@@ -146,7 +146,7 @@ echo $min_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 #echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_clock_on_power
-#mount -o remount,ro /
+mount -t rfs -o remount,ro /dev/block/stl9 /
 log "collin_ph: Done Increasing Performance"
 }
 set_powersave_bias()
@@ -211,11 +211,11 @@ esac
 if [ "$charging_source" != "$last_source" ]
   then
      last_source=$charging_source;
-     log "collin_ph status= Charging Source: 0=USB 2=AC 1=Battery"
+     log "collin_ph status= Charging Source: 1=USB 2=AC 0=Battery"
      log "collin_ph status= Charging Source: charging_source=$charging_source"
        case $charging_source in
-          "1") increase_battery;;
-          "0") increase_performanceUSB;;
+          "0") increase_battery;;
+          "1") increase_performanceUSB;;
           "2") increase_performance;;
        esac
 
