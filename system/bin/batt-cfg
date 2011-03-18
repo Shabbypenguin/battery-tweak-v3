@@ -485,10 +485,10 @@ echoit "Saving Settings..."
 mount -o remount,rw -t rfs /dev/block/stl9 /system
 echo "MOUNToptions=$MOUNToptions" >  /system/etc/batt.conf
 echo "enabled=$enabled" >> /system/etc/batt.conf
-echo "MaxTemp=$MaxTemp" >> /system/etc/batt.conf
-echo "MaxTempEnable=$MaxTempEnable" >> /system/etc/batt.conf
-echo "MaxFreqOverride=$MaxFreqOverride" >> /system/etc/batt.conf
-echo "MinFreqOverride=$MinFreqOverride" >> /system/etc/batt.conf
+#echo "MaxTemp=$MaxTemp" >> /system/etc/batt.conf
+#echo "MaxTempEnable=$MaxTempEnable" >> /system/etc/batt.conf
+#echo "MaxFreqOverride=$MaxFreqOverride" >> /system/etc/batt.conf
+#echo "MinFreqOverride=$MinFreqOverride" >> /system/etc/batt.conf
 echo "cpu_limiting_method=$cpu_limiting_method" >> /system/etc/batt.conf
 echo "min_freq_on_battery=$min_freq_on_battery" >> /system/etc/batt.conf
 echo "max_freq_on_battery=$max_freq_on_battery" >> /system/etc/batt.conf
