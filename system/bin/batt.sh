@@ -85,11 +85,12 @@ increase_battery()
 log "collin_ph: Increasing Battery"
 #New Performance Tweaks
 mount -t rfs -o remount,rw /dev/block/stl9 /
-if [ $LEDfix ] 
-   then
-   echo 0 > /sys/class/leds/amber/brightness
-   echo 0 > /sys/class/leds/green/brightness
-fi
+#this was needed for the heroc on cm6.. obviously not needed for the epic
+#if [ $LEDfix ] 
+#   then
+#   echo 0 > /sys/class/leds/amber/brightness
+#   echo 0 > /sys/class/leds/green/brightness
+#fi
 current_polling_interval=$polling_interval_on_battery;
 echo 0 > /proc/sys/vm/swappiness
 echo 0 > /proc/sys/vm/dirty_expire_centisecs
