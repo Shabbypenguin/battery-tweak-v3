@@ -42,9 +42,9 @@ last_capacity=0;
 #mount -o $1 /proc -t proc
 #mount -o $1 /sys -t sysfs
 #mount -o $1 /mnt/asec -t tmpfs
-#mount -o $1 /system -t rfs
-#mount -o $1 /data -t rfs
-#mount -o $1 /cache -t rfs
+#mount -o $1 /system -t ext4
+#mount -o $1 /data -t ext4
+#mount -o $1 /cache -t ext4
 #mount -o $1 /mnt/sdcard -t vfat
 #mount -o $1 /mnt/secure/asec -t vfat
 #mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
@@ -84,7 +84,7 @@ increase_battery()
 {
 log "collin_ph: Increasing Battery"
 #New Performance Tweaks
-mount -t rfs -o remount,rw /dev/block/stl9 /
+mount -t ext4 -o remount,rw /dev/block/stl9 /
 #this was needed for the heroc on cm6.. obviously not needed for the epic
 #if [ $LEDfix ] 
 #   then
@@ -104,7 +104,7 @@ echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_fre
 #echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_freq_on_battery
-mount -t rfs -o remount,ro /dev/block/stl9 /
+mount -t ext4 -o remount,ro /dev/block/stl9 /
 log "collin_ph: Done Increasing Battery"
 }
 
@@ -112,7 +112,7 @@ increase_performanceUSB()
 {
 log "collin_ph: Increasing Performance For USB Charging"
 
-mount -t rfs -o remount,rw /dev/block/stl9 /
+mount -t ext4 -o remount,rw /dev/block/stl9 /
 current_polling_interval=$polling_interval_on_USBpower;
 echo 30 > /proc/sys/vm/swappiness
 echo 1500 > /proc/sys/vm/dirty_expire_centisecs
@@ -126,14 +126,14 @@ echo $min_freq_on_USBpower > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_fr
 #echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_clock_on_USBpower
-mount -t rfs -o remount,ro /dev/block/stl9 /
+mount -t ext4 -o remount,ro /dev/block/stl9 /
 log "collin_ph: Done Increasing Performance on USB Charging"
 }
 
 increase_performance()
 {
 log "collin_ph: Increasing Performance"
-mount -t rfs -o remount,ro /dev/block/stl9 /
+mount -t ext4 -o remount,ro /dev/block/stl9 /
 current_polling_interval=$polling_interval_on_power;
 echo 30 > /proc/sys/vm/swappiness
 echo 3000 > /proc/sys/vm/dirty_expire_centisecs
@@ -147,7 +147,7 @@ echo $min_freq_on_power > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 #echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_clock_on_power
-mount -t rfs -o remount,ro /dev/block/stl9 /
+mount -t ext4 -o remount,ro /dev/block/stl9 /
 log "collin_ph: Done Increasing Performance"
 }
 set_powersave_bias()
