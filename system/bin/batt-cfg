@@ -426,7 +426,7 @@ echoit ""
 echoit ""
 echoit ""
 echoit ""
-echoit "The CPU or process speed will be limited as the battery drains.When fully charged or charging, the CPU will operate at full speed. When nearly dead, the cpu will be reduced by a certain percentage. This percentage must be a whole number and not contain a % sign."
+echoit "The CPU or process speed will be limited as the battery drains.When fully charged or charging, the CPU will operate at full speed. When nearly dead, the cpu will be reduced by a certain percentage. This percentage must be a whole number and not contain a % sign. it works best with even numbers like 40% etc"
 echoit ""
 echoit "Please enter the maximum percentage to reduce the CPU by [$cpu_max_underclock_perc]"
 read new_cpu_max_underclock_perc
