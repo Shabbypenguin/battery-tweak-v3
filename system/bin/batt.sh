@@ -232,7 +232,7 @@ if [ "$charging_source" = "0" ]
     log "collin_ph: status = Charging Source: charging_source=$charging_source"
     case $cpu_limiting_method in
        "1") set_max_clock;;
-       "2") set_powersave_bias;;
+    log "collin_ph: setting something"
     esac
 
   fi
