@@ -572,7 +572,7 @@ echoit ""
 echoit ""
 echoit ""
 
-echoit "Three services are running on your epic by default that cause battery loss, you can choose to remove them or leave them alone. hit enter to leave it unchanged [remove/restore] [$DRM_Services]."
+echoit "Three services are running on your epic by default that cause battery loss, you can choose to remove them or leave them alone. hit enter to leave it unchanged NOTE: this removes mediahub, and drm services which may or may not affect issues with media playback. if you have problems dont blame me just restore them...[remove/restore] [$DRM_Services]."
 read new_DRM_Services
 echoit ""
 case $new_DRM_Services in
