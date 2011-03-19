@@ -7,7 +7,7 @@ application="Battery Tweak Script";
 
 RemoveAllFiles()
 {
-   mount -t rfs -o remount,rw /dev/block/stl9 /system
+   mount -t ext4 -o remount,rw /dev/block/stl9 /system
    rm /system/bin/batt.sh;
    rm /system/bin/batt-cfg;
    rm /system/etc/batt.conf;
@@ -18,15 +18,15 @@ RemoveAllFiles()
    chmod 755 /system/etc/init.local.rc
    log "collin_ph: Removed $application";
    rm /system/bin/batt-rm.sh;
-   mount -t rfs -o remount,ro /dev/block/stl9 /system
+   mount -t ext4 -o remount,ro /dev/block/stl9 /system
    exit;
 }
 
 DontRemoveFiles()
 {
-   mount -t rfs -o remount,rw /dev/block/stl9 /system 
+   mount -t ext4 -o remount,rw /dev/block/stl9 /system 
    log "collin_ph: Canceled Removal of $application";
-   mount -t rfs -o remount,ro /dev/block/stl9 /system
+   mount -t ext4 -o remount,ro /dev/block/stl9 /system
    exit;
 }
 
