@@ -84,7 +84,7 @@ increase_battery()
 {
 log "collin_ph: Increasing Battery"
 #New Performance Tweaks
-mount -t ext4 -o remount,rw /dev/block/stl9 /
+mount -o remount,rw /dev/block/stl9 /system
 #this was needed for the heroc on cm6.. obviously not needed for the epic
 #if [ $LEDfix ] 
 #   then
@@ -104,7 +104,7 @@ echo $min_freq_on_battery > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_fre
 #echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias
 last_capacity=0;
 current_max_clock=$max_freq_on_battery
-mount -t ext4 -o remount,ro /dev/block/stl9 /
+mount -o remount,ro /dev/block/stl9 /system
 log "collin_ph: Done Increasing Battery"
 }
 
