@@ -176,16 +176,20 @@ esac
 
 DRMremove()
 {
+mount -o remount,rw /dev/block/stl9 /system
 mv /system/app/DrmProvider.apk /system/app/DrmProvider.apk.bak
 mv /system/app/DrmUA.apk /system/app/DrmUA.apk.bak
 mv /system/app/MediaHub.apk /system/app/MediaHub.apk.bak
+mount -o remount,ro /dev/block/stl9 /system
 }
 
 DRMrestore()
 {
+mount -o remount,rw /dev/block/stl9 /system
 mv /system/app/DrmProvider.apk.bak /system/app/DrmProvider.apk
 mv /system/app/DrmUA.apk.bak /system/app/DrmUA.apk
 mv /system/app/MediaHub.apk.bak /system/app/MediaHub.apk
+mount -o remount,ro /dev/block/stl9 /system
 }
 
 restart()
@@ -482,7 +486,7 @@ if [ "$tpid" -gt 0 ]
  fi
 
 echoit "Saving Settings..."
-mount -o remount,rw -t ext4/dev/block/stl9 /system
+mount -o remount,rw /dev/block/stl9 /system
 echo "MOUNToptions=$MOUNToptions" >  /system/etc/batt.conf
 echo "enabled=$enabled" >> /system/etc/batt.conf
 #echo "MaxTemp=$MaxTemp" >> /system/etc/batt.conf
@@ -501,7 +505,7 @@ echo "polling_interval_on_power=$polling_interval_on_power" >> /system/etc/batt.
 echo "polling_interval_on_USBpower=$polling_interval_on_USBpower" >> /system/etc/batt.conf
 echo "cpu_max_underclock_perc=$cpu_max_underclock_perc " >> /system/etc/batt.conf
 echo "scaling_governor=$scaling_governor" >> /system/etc/batt.conf
-mount -o remount,ro -t ext4 /dev/block/stl9 /system
+mount -o remount,rw /dev/block/stl9 /system
 
 echoit ""
 echoit "Settings Saved."
@@ -581,22 +585,4 @@ case $new_DRM_Services in
              *) echo "settings unchanged";;
 esac
 
-}
-
-DRMremove()
-{
-mount -o remount,rw -t ext4 /dev/block/stl9 /system
-mv /system/app/DrmProvider.apk /system/app/DrmProvider.apk.bak
-mv /system/app/DrmUA.apk /system/app/DrmUA.apk.bak
-mv /system/app/MediaHub.apk /system/app/MediaHub.apk.bak
-mount -o remount,ro -t ext4 /dev/block/stl9 /system
-}
-
-DRMrestore()
-{
-mount -o remount,rw -t ext4 /dev/block/stl9 /system
-mv /system/app/DrmProvider.apk.bak /system/app/DrmProvider.apk
-mv /system/app/DrmUA.apk.bak /system/app/DrmUA.apk
-mv /system/app/MediaHub.apk.bak /system/app/MediaHub.apk
-mount -o remount,ro -t ext4 /dev/block/stl9 /system
 }
