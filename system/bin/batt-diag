@@ -74,11 +74,26 @@ cat /system/etc/batt.conf
 echo "----end of batt.conf----"
 echo "----Mount points----"
 mount
-#displayparm "/proc/mounts/"
+displayparm "/proc/mounts/"
 echo ""
+echo ""
+echo "Displaying CFS tweaks.----"	 	
+mount -t debugfs none /sys/kernel/debug	 	
+displayparm "/sys/kernel/debug/sched_features" 	
+displayparm "/proc/sys/kernel/sched_latency_ns"	 	
+displayparm "/proc/sys/kernel/sched_min_granularity_ns"	 	
+displayparm "/proc/sys/kernel/sched_wakeup_granularity_ns"	 	
+umount /sys/kernel/debug	 	
 echo ""	 	
 echo ""	 	
-echo ""	 	
+echo ""
+echo "Displaying Current CPU scheduler and Scaling Governor"
+echo "Scaling Governor:"
+displayparm "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
+echo "CPU scheduler:"
+displayparm "/sys/block/mtdblock3/queue/scheduler"
+echo ""
+echo ""
 echo ""
 echo "Displaying Batt.sh tweakables.----"
 
@@ -93,15 +108,17 @@ displayparm "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
 displayparm "/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq"
 displayparm "/sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold"
 displayparm "/sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias"
-echo "Current charging source: 0=Battery 1=USB 2=AC"
-displayparm "/sys/class/power_supply/battery/charging_source"
+echo "Current charging source: 0=Battery 1=AC"
+displayparm "/sys/class/power_supply/ac/online"
+echo "Current charging source: 0=Battery 1=USB"
+displayparm "/sys/class/power_supply/usb/online"
 echo "Current battery capacity"
 displayparm "/sys/class/power_supply/battery/capacity"
 displayparm "/sys/class/power_supply/battery/health"
 
 echo ""
 echo "----Current Battery Temp----"
-tmp=`cat /sys/class/power_supply/battery/batt_temp`
+tmp=`cat /sys/class/power_supply/battery/temp`
 c=`expr "$tmp" "/" 10`
 f=`expr "$tmp" "*" 18`
 f=`expr "$f" "/" 100`
