@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-
+#Added support for the crespo/4g by Shabbypenguin
 #Added Beta Code 1.0 for usb-ac charging variants by Decad3nce
 #Battery Tweak Beta by collin_ph
 #configurable options
