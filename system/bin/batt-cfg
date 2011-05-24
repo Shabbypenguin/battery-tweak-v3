@@ -90,11 +90,11 @@ MinFreqOverride=200000
 MOUNToptions=0
 CFStweaks=0
 enabled=1
-cpu_max_underclock_perc=40
+cpu_max_underclock_perc=58
 cpu_limiting_method=1
 max_freq_on_battery=1000000
 max_freq_on_USBpower=1000000
-polling_interval_on_battery=60
+polling_interval_on_battery=75
 polling_interval_on_USBpower=15
 polling_interval_on_power=15
 min_freq_on_battery=200000
@@ -245,7 +245,7 @@ echoit ""
 echoit ""
 echoit ""
 echoit "The Min and Max frequency settings determine how fast the CPU runs. The Min frequency must be less than or equal to the Max."
-echoit "Some phones do not support settings higher than 6912000."
+echoit "Some phones do not support settings higher than 1000000 (1GHz)."
 echoit ""
 #no longer works. 
 #cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
@@ -283,7 +283,7 @@ echoit ""
 echoit ""
 echoit ""
 echoit ""
-echoit "The Min and Max frequency settings determine how fast the CPU runs. The Min frequency must be less than or equal to the 480000 on USB. Some phones do not support settings higher than 691200."
+echoit "The Min and Max frequency settings determine how fast the CPU runs. Some phones do not support settings higher than 1000000 (1GHz)."
 echoit ""
 show_freq_table
 echoit ""
@@ -322,7 +322,7 @@ echoit ""
 echoit ""
 echoit ""
 
-echoit "Set CPU settings on AC POWER. Note: These settings differ from USB charging. You can freely allow the Min CPU setting to be higher than 480000"
+echoit "Set CPU settings on AC POWER. Note: These settings differ from USB charging."
 echoit ""
 show_freq_table
 echoit "Choose a Min CPU setting while ON AC POWER or enter [$min_freq_on_power]"
@@ -512,7 +512,7 @@ echoit ""
 echoit ""
 echoit ""
 
-echoit "The batt-cfg utility configures the collin_ph battery tweak. When on USB/AC power, maximum performance settings will be used. When on battery, more conservative settings will be used. As the battery drains, the CPU clock will be lowered. The CPU Scales between min and max settings always. Additional timing and memory settings are adjusted."
+echoit "The batt-cfg utility configures the collin_ph battery tweak. When on USB/AC power, maximum performance settings will be used. When on battery, more conservative settings will be used. As the battery drains, the CPU clock will be lowered. The CPU Scales between min and max settings always. Additional timing and memory settings are adjusted. Options denoted with a * require a custom kernel to overclock"
 echoit ""
 echoit ""
 echoit ""
@@ -520,8 +520,8 @@ echoit ""
 echoit "Please choose an option and press enter."
 echoit "[1] Revert to 800mhz defaults and exit"
 echoit "[2] Revert to 1000mhz defaults and exit"
-echoit "[3] Revert to 1200mhz defaults and exit"
-echoit "[4] Revert to 1400mhz defaults and exit"
+echoit "[3] Revert to 1200mhz defaults and exit*"
+echoit "[4] Revert to 1400mhz defaults and exit*"
 echoit "[5] Customize settings"
 disp=`get_disp $enabled`
 echoit "[6] $disp Battery Tweak Entirely"
