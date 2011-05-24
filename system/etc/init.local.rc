@@ -1,4 +1,2 @@
 service collin_ph /system/bin/batt.sh
     oneshot
-
-

@@ -24,9 +24,10 @@ RemoveAllFiles()
 
 DontRemoveFiles()
 {
-   mount -o rw,remount /dev/block/mtd3 /system 
+   mount -o remount,rw /dev/block/platform/s3c-sdhci.0/by-name/system / 
    log "collin_ph: Canceled Removal of $application";
-   mount -o remount,ro /
+   mount -o remount,ro /dev/block/platform/s3c-sdhci.0/by-name/system /
+   echo "cancelled removing files"
    exit;
 }
 
