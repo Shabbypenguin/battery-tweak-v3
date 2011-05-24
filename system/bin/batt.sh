@@ -10,14 +10,14 @@
 
 if [ "$enabled" -gt "0" ] 
  then
-#if [ "$audio_fix" -gt "0" ]
-#   then
-#	 log "collin_ph: audiofix enabled, disabling stagefright"
-#	 setprop media.stagefright.enable-player false
-#	 else
-#	 log "collin_ph: audiofix disabled, enabling stagefright"
-#	 setprop media.stagefright.enable-player true
-#fi
+if [ "$audio_fix" -gt "0" ]
+   then
+	 log "collin_ph: audiofix enabled, disabling stagefright"
+	 setprop media.stagefright.enable-player false
+	 else
+	 log "collin_ph: audiofix disabled, enabling stagefright"
+	 setprop media.stagefright.enable-player true
+fi
 	  
  
  
@@ -34,58 +34,58 @@ last_bias=0;
 last_capacity=0;
 #End of init variables
 
-#launchMOUNToptions()
-#{
-#log "collin_ph: remounting file systems $1"
+launchMOUNToptions()
+{
+log "collin_ph: remounting file systems $1"
 
-#mount -o $1 / -t rootfs
-#mount -o $1 /dev -t devpts
-#mount -o $1 /proc -t proc
-#mount -o $1 /sys -t sysfs
-#mount -o $1 /mnt/asec -t tmpfs
-#mount -o $1 /system -t yaffs2
-#mount -o $1 /data -t yaffs2
-#mount -o $1 /cache -t yaffs2
-#mount -o $1 /mnt/sdcard -t vfat
-#mount -o $1 /mnt/secure/asec -t vfat
-#mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
-#}
+mount -o $1 / -t rootfs
+mount -o $1 /dev -t devpts
+mount -o $1 /proc -t proc
+mount -o $1 /sys -t sysfs
+mount -o $1 /mnt/asec -t tmpfs
+mount -o $1 /system -t yaffs2
+mount -o $1 /data -t yaffs2
+mount -o $1 /cache -t yaffs2
+mount -o $1 /mnt/sdcard -t vfat
+mount -o $1 /mnt/secure/asec -t vfat
+mount -o $1 /mnt/sdcard/.android_secure -t tmpfs
+}
 
-# launchCFStweaks()
-#{
-# navPID=`pidof "com.google.android.apps.maps:driveabout" "com.google.android.apps.maps"`
-# if [ "$navPID" ] 
- # then 
- # disableCFStweaks "Disabling CFS Tweaks, GPS Navigation detected.";
- # else
- # if [ "$CFSstate" != "enabled" ] 
- # then
- # mount -t debugfs none /sys/kernel/debug
- # log "collin_ph: Changed sched_features (CFS Tweaks Enabled)"
- # echo "NO_NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
- # umount /sys/kernel/debug
- # CFSstate="enabled"
- # fi
-# fi
+launchCFStweaks()
+{
+navPID=`pidof "com.google.android.apps.maps:driveabout"`
+if [ "$navPID" ] 
+ then 
+ disableCFStweaks "Disabling CFS Tweaks, GPS Navigation detected.";
+ else
+ if [ "$CFSstate" != "enabled" ] 
+ then
+ mount -t debugfs none /sys/kernel/debug
+ log "collin_ph: Changed sched_features (CFS Tweaks Enabled)"
+ echo "NO_NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
+ umount /sys/kernel/debug
+ CFSstate="enabled"
+ fi
+fi
 
-# }
-#disableCFStweaks()
-# {
-# if [ "$CFSstate" != "disabled" ]
-# then
-# mount -t debugfs none /sys/kernel/debug
-# log "collin_ph: Changed sched_features $1"
-# echo "NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
-# umount /sys/kernel/debug
-# CFSstate="disabled"
-# fi
-# }
+}
+disableCFStweaks()
+{
+if [ "$CFSstate" != "disabled" ]
+then
+mount -t debugfs none /sys/kernel/debug
+log "collin_ph: Changed sched_features $1"
+echo "NEW_FAIR_SLEEPERS" > /sys/kernel/debug/sched_features
+umount /sys/kernel/debug
+CFSstate="disabled"
+fi
+}
 
 increase_battery()
 {
 log "collin_ph: Increasing Battery"
 #New Performance Tweaks
-mount -o remount,rw /dev/block/platform/s3c-sdhci.0/by-name/system /system
+mount -o remount,rw -t yaffs2 /dev/block/mtdblock3
 current_polling_interval=$polling_interval_on_battery;
 echo 0 > /proc/sys/vm/swappiness
 echo 0 > /proc/sys/vm/dirty_expire_centisecs
@@ -106,7 +106,7 @@ fi
 
 last_capacity=0;
 current_max_clock=$max_freq_on_battery
-mount -o remount,ro /dev/block/platform/s3c-sdhci.0/by-name/system /system
+mount -o remount,ro -t yaffs2 /dev/block/mtdblock3
 log "collin_ph: Done Increasing Battery"
 }
 
@@ -188,9 +188,9 @@ set_powersave_bias()
 set_max_clock()
 {
     temp=`expr 100 "-" $capacity`
-		temp=`expr $temp \* $cpu_max_underclock_perc`
+		temp=`expr $temp "*" $cpu_max_underclock_perc`
 		temp=`expr $temp "/" 100`
-		temp=`expr $temp \* $max_freq_on_battery`
+		temp=`expr $temp "*" $max_freq_on_battery`
 		temp=`expr $temp "/" 100`
 		temp=`expr $max_freq_on_battery "-" $temp`
     
@@ -204,85 +204,72 @@ set_max_clock()
 
 
 }
-#case $MOUNToptions in
-#   "1") launchMOUNToptions remount,noatime,nodiratime;;
-#     *) launchMOUNToptions remount,atime,diratime;;
-#esac
+case $MOUNToptions in
+   "1") launchMOUNToptions remount,noatime,nodiratime;;
+     *) launchMOUNToptions remount,atime,diratime;;
+esac
 
 
 while [ 1 ] 
 do
-charging_AC=$(cat /sys/class/power_supply/ac/online);
-charging_USB=$(cat /sys/class/power_supply/usb/online);
+charging_source=$(cat /sys/class/power_supply/battery/charging_source);
 capacity=$(cat /sys/class/power_supply/battery/capacity);
-CurrentTemp=$(cat /sys/class/power_supply/battery/temp);
+CurrentTemp=$(cat /sys/class/power_supply/battery/batt_temp);
 
 
 sleep $current_polling_interval
-log "collin_ph: polling biatch";	    
+	    
 
-#case $CFStweaks in
-#   "1") launchCFStweaks;;
-#     *) disableCFStweaks "CFS Tweaks Disabled";;
-#esac
+case $CFStweaks in
+   "1") launchCFStweaks;;
+     *) disableCFStweaks "CFS Tweaks Disabled";;
+esac
 
-if [ "$charging_AC" = "1" ]
+if [ "$charging_source" != "$last_source" ]
   then
+     last_source=$charging_source;
      log "collin_ph status= Charging Source: 1=USB 2=AC 0=Battery"
-     log "collin_ph status= Charging Source: charging_source = 2"
-       case $charging_AC in
-          "0") increase_battery;;
-          "1") increase_performance;;
-       esac
-
-
-fi
-
-if [ "$charging_USB" = "1" ]
-  then
-     log "collin_ph status= Charging Source: 1=USB 2=AC 0=Battery"
-     log "collin_ph status= Charging Source: charging_source = 1"
-       case $charging_USB in
+     log "collin_ph status= Charging Source: charging_source=$charging_source"
+       case $charging_source in
           "0") increase_battery;;
           "1") increase_performanceUSB;;
+          "2") increase_performance;;
        esac
 
 
 fi
 
 
-if [ "$charging_USB" = "0" ]
+if [ "$charging_source" = "0" ]
   then
-   if [ "$charging_AC" = "0" ]
+  if [ "$capacity" != "$last_capacity" ]
     then
-     if [ "$capacity" != "$last_capacity" ]
-      then
-        last_capacity=$capacity
-        log "collin_ph: status = Charging Source: charging_source=0"
-      case $cpu_limiting_method in
+    last_capacity=$capacity
+    log "collin_ph: status = Charging Source: charging_source=$charging_source"
+    case $cpu_limiting_method in
        "1") set_max_clock;;
        "2") set_powersave_bias;;
-      esac
-     fi
-   fi
+    esac
+
+  fi
 fi
 
 if [ "$MaxTempEnable" = "y" ]
   then
   if [ "$CurrentTemp" -gt "$MaxTemp" ]
 	then
-	mount -o remount,rw /dev/block/platform/s3c-sdhci.0/by-name/system /system
+	mount -o remount,rw -t yaffs2 /dev/block/mtdblock3 /system
 	echo "OverHeatActive=1" > /system/etc/batt-temp.conf
-	mount -o remount,ro /dev/block/platform/s3c-sdhci.0/by-name/system /system
+	mount -o remount,ro -t yaffs2 /dev/block/mtdblock3 /system
 	echo $MaxFreqOverride > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 	echo $MinFreqOverride > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 	log "collin_ph: Phone is Overheating, Max Frequencies override"
   else
 	if [ "$OverHeatActive" != "0" ]
 	      then
-                mount -o remount,rw /dev/block/platform/s3c-sdhci.0/by-name/system /system
+		mount -o remount,rw -t yaffs2 /dev/block/mtdblock3 /system
 		echo "OverHeatActive=0" > /system/etc/batt-temp.conf
-		mount -o remount,ro /dev/block/platform/s3c-sdhci.0/by-name/system /system
+		mount -o remount,ro -t yaffs2 /dev/block/mtdblock3 /system
 	fi
   fi
 fi
