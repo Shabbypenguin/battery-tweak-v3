@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-#Removal Beta v1.1 by Decad3nce
+#Removal Beta v1.1 by Decad3nce 
 #Application:
 application="Battery Tweak Script";
 #End
