@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-#batt-diag
+#batt-diag 
 #displays information necessary to debug the collin_ph battery tweak
 #may be piped to more, or sent to a text file.
 #you may upload batt-diag logs to joe@primoweb.com for diagnosis.
