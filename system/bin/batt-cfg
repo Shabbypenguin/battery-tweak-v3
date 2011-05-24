@@ -4,8 +4,8 @@ echoit ()
 {
 echo "$1" | fold -s -w 45
 }
-/system/bin/id |grep root > /dev/null 2>&1
-if [ $? -ne 0 ]
+who=`whoami`
+if [ "$who" != "root" ]
  then
  echoit "batt-cfg must be ran as root."
  echoit "Press enter to attempt to run as root"
@@ -85,21 +85,21 @@ load_defaults()
 audio_fix=0
 MaxTempEnable=n
 MaxTemp=450
-MaxFreqOverride=800000
-MinFreqOverride=200000
-MOUNToptions=0
+MaxFreqOverride=537600
+MinFreqOverride=245760
+MOUNToptions=1
 CFStweaks=0
 enabled=1
-cpu_max_underclock_perc=58
+cpu_max_underclock_perc=15
 cpu_limiting_method=1
-max_freq_on_battery=1000000
-max_freq_on_USBpower=1000000
-polling_interval_on_battery=75
+max_freq_on_battery=691200
+max_freq_on_USBpower=691200
+polling_interval_on_battery=60
 polling_interval_on_USBpower=15
 polling_interval_on_power=15
-min_freq_on_battery=200000
-min_freq_on_power=200000
-min_freq_on_USBpower=200000
+min_freq_on_battery=245000
+min_freq_on_power=245000
+min_freq_on_USBpower=245000
 }
 
 TempManagement()
@@ -167,7 +167,7 @@ if [ "$t" ]
    then
 	 echoit "Started"
    else
-	 nohup /system/bin/batt.sh 2>/dev/null &
+	 nohup /system/bin/batt.sh 2>/dev/nul &
 	 echoit "NOTE: when you exit ADB or terminal, you may have to hit CTRL-C"
 fi
 
@@ -245,7 +245,7 @@ echoit ""
 echoit ""
 echoit ""
 echoit "The Min and Max frequency settings determine how fast the CPU runs. The Min frequency must be less than or equal to the Max."
-echoit "Some phones do not support settings higher than 1000000 (1GHz)."
+echoit "Some phones do not support settings higher than 6912000."
 echoit ""
 #no longer works. 
 #cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
@@ -283,7 +283,7 @@ echoit ""
 echoit ""
 echoit ""
 echoit ""
-echoit "The Min and Max frequency settings determine how fast the CPU runs. Some phones do not support settings higher than 1000000 (1GHz)."
+echoit "The Min and Max frequency settings determine how fast the CPU runs. The Min frequency must be less than or equal to the 480000 on USB. Some phones do not support settings higher than 691200."
 echoit ""
 show_freq_table
 echoit ""
@@ -322,7 +322,7 @@ echoit ""
 echoit ""
 echoit ""
 
-echoit "Set CPU settings on AC POWER. Note: These settings differ from USB charging."
+echoit "Set CPU settings on AC POWER. Note: These settings differ from USB charging. You can freely allow the Min CPU setting to be higher than 480000"
 echoit ""
 show_freq_table
 echoit "Choose a Min CPU setting while ON AC POWER or enter [$min_freq_on_power]"
@@ -419,39 +419,21 @@ echoit ""
 save_settings
 }
 
-load_800()
+load_768()
 {
-echoit "Loading 800mhz defaults"
+echoit "Loading 768mhz defaults"
 load_defaults
-max_freq_on_power=800000
-max_freq_on_USBpower=800000
+max_freq_on_power=768000
+max_freq_on_USBpower=768000
 save_settings
 }
 
-load_1000()
+load_691()
 {
-echoit "Loading 1000mhz defaults"
+echoit "Loading 691mhz defaults"
 load_defaults
-max_freq_on_power=1000000
-max_freq_on_USBpower=1000000
-save_settings
-}
-
-load_1200()
-{
-echoit "Loading 1200mhz defaults"
-load_defaults
-max_freq_on_power=1200000
-max_freq_on_USBpower=1200000
-save_settings
-}
-
-load_1400()
-{
-echoit "Loading 1400mhz defaults"
-load_defaults
-max_freq_on_power=1400000
-max_freq_on_USBpower=1400000
+max_freq_on_power=691200
+max_freq_on_USBpower=691200
 save_settings
 }
 
@@ -465,7 +447,7 @@ if [ "$tpid" -gt 0 ]
  fi
 
 echoit "Saving Settings..."
-mount -o remount,rw /dev/block/platform/s3c-sdhci.0/by-name/system /system
+mount -o remount,rw -t yaffs2 /dev/block/mtdblock3 /system
 echo "audio_fix=$audio_fix" > /system/etc/batt.conf
 echo "CFStweaks=$CFStweaks" >> /system/etc/batt.conf
 echo "MOUNToptions=$MOUNToptions" >>  /system/etc/batt.conf
@@ -487,7 +469,7 @@ echo "polling_interval_on_USBpower=$polling_interval_on_USBpower" >> /system/etc
 echo "cpu_max_underclock_perc=$cpu_max_underclock_perc " >> /system/etc/batt.conf
 echo "scaling_governor=$scaling_governor" >> /system/etc/batt.conf
 echo "cpu_scheduler=$cpu_scheduler" >> /system/etc/batt.conf
-mount -o remount,ro /dev/block/platform/s3c-sdhci.0/by-name/system /system
+mount -o remount,ro -t yaffs2 /dev/block/mtdblock3 /system
 
 echoit ""
 echoit "Settings Saved."
@@ -512,37 +494,45 @@ echoit ""
 echoit ""
 echoit ""
 
-echoit "The batt-cfg utility configures the collin_ph battery tweak. When on USB/AC power, maximum performance settings will be used. When on battery, more conservative settings will be used. As the battery drains, the CPU clock will be lowered. The CPU Scales between min and max settings always. Additional timing and memory settings are adjusted. Options denoted with a * require a custom kernel to overclock"
+echoit "The batt-cfg utility configures the collin_ph battery tweak. When on USB/AC power, maximum performance settings will be used. When on battery, more conservative settings will be used. As the battery drains, the CPU clock will be lowered. The CPU Scales between min and max settings always. Additional timing and memory settings are adjusted."
 echoit ""
 echoit ""
 echoit ""
 
 echoit "Please choose an option and press enter."
-echoit "[1] Revert to 800mhz defaults and exit"
-echoit "[2] Revert to 1000mhz defaults and exit"
-echoit "[3] Revert to 1200mhz defaults and exit*"
-echoit "[4] Revert to 1400mhz defaults and exit*"
-echoit "[5] Customize settings"
+echoit "[1] Revert to 768mhz defaults and exit"
+echoit "[2] Revert to 691mhz defaults and exit"
+echoit "[3] Customize settings"
+
+
 disp=`get_disp $enabled`
-echoit "[6] $disp Battery Tweak Entirely"
-echoit "[7] Temperature Management"
-echoit "[0] Save Changes & Exit"
+echoit "[4] $disp Battery Tweak Entirely"
+disp=`get_disp $CFStweaks`
+echoit "[5] $disp CFS Tweaks "
+disp=`get_disp $MOUNToptions`
+echoit "[6] $disp Disk Boost"
+disp=`get_disp $audio_fix`
+disp2=`toggle $audio_fix`
+disp2=`get_disp $disp2`
+echoit "[7] $disp Audio Fix ($disp2 Stagefright)"
+echoit "[8] Temperature Management"
+echoit "[9] Save Changes & Exit"
 echoit "[Enter]: Exit Without Saving Changes"
 read choice
 echoit ""
 echoit ""
 
   case $choice in
-        "1") load_800;;
-        "2") load_1000;;
-        "3") load_1200;;
-        "4") load_1400;;
-				"5") customize;;
-				"6") enabled=`toggle $enabled`;;
-				"7") TempManagement;;
-				"0") save_settings;;
+        "1") load_768;;
+        "2") load_691;;
+				"3") customize;;
+				"4") enabled=`toggle $enabled`;;
+				"5") CFStweaks=`toggle $CFStweaks`;;
+        "6") MOUNToptions=`toggle $MOUNToptions`;;
+				"7") audio_fix=`toggle $audio_fix`;;
+				"8") TempManagement;;
+				"9") save_settings;;
 				*) echoit "Exiting. No Changes Saved"
 				   exit;; 
      esac
 done
-
