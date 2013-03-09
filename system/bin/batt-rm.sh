@@ -1,4 +1,4 @@
-#!/system/bin/sh
+#!/system/bin/bash
 
 #Removal Beta v1.1 by Decad3nce
 #Application:
@@ -7,27 +7,25 @@ application="Battery Tweak Script";
 
 RemoveAllFiles()
 {
-   mount -o remount,rw /dev/block/platform/s3c-sdhci.0/by-name/system /
+   mount -o remount,rw / /
    rm /system/bin/batt.sh;
    rm /system/bin/batt-cfg;
    rm /system/etc/batt.conf;
    rm /system/etc/batt-temp.conf;
    rm /system/bin/batt-diag;
-   egrep -v 'collin_ph|oneshot' /system/etc/init.local.rc > /system/etc/init.local.rc.tmp
-   mv /system/etc/init.local.rc.tmp /system/etc/init.local.rc
-   chmod 755 /system/etc/init.local.rc
-   log "collin_ph: Removed $application";
+   rm /system/etc/init.d/01BatteryTweak
+   log "Removed $application";
    rm /system/bin/batt-rm.sh;
-   mount -o remount,ro /dev/block/platform/s3c-sdhci.0/by-name/system /
+   mount -o remount,ro / /
    exit;
 }
 
 DontRemoveFiles()
 {
-   mount -o remount,rw /dev/block/platform/s3c-sdhci.0/by-name/system / 
-   log "collin_ph: Canceled Removal of $application";
-   mount -o remount,ro /dev/block/platform/s3c-sdhci.0/by-name/system /
-   echo "cancelled removing files"
+   mount -o remount,rw / / 
+   log "Canceled Removal of $application";
+   mount -o remount,ro / /
+   echo "Cancelled removing files"
    exit;
 }
 
@@ -35,7 +33,7 @@ echo ""
 echo ""
 echo ""
 
-echo "This tool will remove almost all traces of the Battery Tweak"
+echo "This tool will remove all traces of the Battery Tweak"
 echo ""
 echo "Are you sure that you want to go through with this?[y/n]"
 read ANS
@@ -43,7 +41,7 @@ read ANS
 case $ANS in
            "y") RemoveAllFiles;;
            "n") DontRemoveFiles;;
-             *) echo "collin_ph: Cancelled Removal of $application";;
+             *) echo "Cancelled Removal of $application";;
 esac
 
 done

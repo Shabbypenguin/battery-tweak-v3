@@ -1,29 +1,29 @@
-#!/system/bin/sh
+#!/system/bin/bash
 
 #batt-diag
 #displays information necessary to debug the collin_ph battery tweak
 #may be piped to more, or sent to a text file.
 #you may upload batt-diag logs to joe@primoweb.com for diagnosis.
 
-echoit ()
+echo ()
 {
 echo "$1" | fold -s -w 45
 }
 /system/bin/id |grep root > /dev/null 2>&1
 if [ $? -ne 0 ]
  then
- echoit "batt-diag must be ran as root."
- echoit "Press enter to attempt to run as root"
- echoit "Or press 1 then enter to continue without attempting to gain root access"
- echoit ""
+ echo "batt-diag must be ran as root."
+ echo "Press enter to attempt to run as root"
+ echo "Or press 1 then enter to continue without attempting to gain root access"
+ echo ""
  read opt
  if [ "$opt" -eq "1" ] 
   then
-	echoit "Continuing..."
+	echo "Continuing..."
  else
- echoit "Running batt-diag as root"
+ echo "Running batt-diag as root"
  su -c "batt-diag"
- echoit "Exited batt-diag as root"
+ echo "Exited batt-diag as root"
  exit
  fi
 fi
@@ -32,7 +32,7 @@ displayparm()
 echo "$1"
 cat $1
 }
-echo "Collin_ph Battery diagnostic utility"
+echo "Battery diagnostic utility"
 echo "batt-diag -v for verbose diagnostics"
 echo "Checking if batt.sh service is running"
 out=`pidof batt.sh`
@@ -75,15 +75,6 @@ echo "----end of batt.conf----"
 echo "----Mount points----"
 mount
 displayparm "/proc/mounts/"
-echo ""
-echo ""
-echo "Displaying CFS tweaks.----"	 	
-mount -t debugfs none /sys/kernel/debug	 	
-displayparm "/sys/kernel/debug/sched_features" 	
-displayparm "/proc/sys/kernel/sched_latency_ns"	 	
-displayparm "/proc/sys/kernel/sched_min_granularity_ns"	 	
-displayparm "/proc/sys/kernel/sched_wakeup_granularity_ns"	 	
-umount /sys/kernel/debug	 	
 echo ""	 	
 echo ""	 	
 echo ""
@@ -91,23 +82,17 @@ echo "Displaying Current CPU scheduler and Scaling Governor"
 echo "Scaling Governor:"
 displayparm "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
 echo "CPU scheduler:"
-displayparm "/sys/block/mtdblock3/queue/scheduler"
+displayparm "cat /sys/block/mmcblk0/queue/scheduler"
 echo ""
 echo ""
 echo ""
 echo "Displaying Batt.sh tweakables.----"
 
 
-displayparm "/proc/sys/vm/swappiness"
-displayparm "/proc/sys/vm/dirty_expire_centisecs"
-displayparm "/proc/sys/vm/dirty_writeback_centisecs"
-displayparm "/proc/sys/vm/dirty_background_ratio"
-displayparm "/proc/sys/vm/dirty_ratio"
-displayparm "/proc/sys/vm/vfs_cache_pressure"
 displayparm "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
 displayparm "/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq"
-displayparm "/sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold"
-displayparm "/sys/devices/system/cpu/cpu0/cpufreq/ondemand/powersave_bias"
+displayparm "/sys/devices/system/cpu/cpufreq/ondemand/up_threshold"
+displayparm "/sys/devices/system/cpu/cpufreq/ondemand/powersave_bias"
 echo "Current charging source: 0=Battery 1=AC"
 displayparm "/sys/class/power_supply/ac/online"
 echo "Current charging source: 0=Battery 1=USB"
